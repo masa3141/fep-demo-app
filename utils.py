@@ -29,11 +29,14 @@ def plot_likelihood(matrix, xlabels=list(range(9)), ylabels=list(range(9)), titl
         raise ValueError(
             "Distribution not column-normalized! Please normalize (ensure matrix.sum(axis=0) == 1.0 for all columns)"
         )
+    fig, ax = plt.subplots()
 
-    fig = plt.figure(figsize=(6, 6))
+    # fig = plt.figure(figsize=(6, 6))
     ax = sns.heatmap(matrix, xticklabels=xlabels, yticklabels=ylabels, cmap="gray", cbar=False, vmin=0.0, vmax=1.0)
     plt.title(title_str)
-    plt.show()
+    plt.xlabel("s")
+    plt.ylabel("o")
+    st.pyplot(fig)
 
 
 def plot_grid(grid_locations, num_x=3, num_y=3):
@@ -50,19 +53,40 @@ def plot_grid(grid_locations, num_x=3, num_y=3):
         grid_heatmap[y, x] = linear_idx
     sns.set(font_scale=1.5)
     ax = sns.heatmap(grid_heatmap, annot=True, cbar=False, fmt=".0f", cmap="crest")
-    # Matplotlib の Figure を指定して可視化する
+    plt.title("Maze index")
     st.pyplot(fig)
 
 
-def plot_point_on_grid(state_vector, grid_locations):
+def plot_grid_with_probability(grid_locations, probs, desc, num_x=3, num_y=3):
+    """
+    Plots the spatial coordinates of GridWorld as a heatmap, with each (X, Y) coordinate
+    labeled with its linear index (its `state id`)
+    """
+    # Rendering Matplotlib AxesSubplots in Streamlit
+    # https://discuss.streamlit.io/t/rendering-matplotlib-axessubplots-in-streamlit/5662/4
+    fig, ax = plt.subplots()
+    grid_heatmap = np.zeros((num_x, num_y))
+    for linear_idx, location in enumerate(grid_locations):
+        y, x = location
+        grid_heatmap[y, x] = probs[linear_idx]
+    sns.set(font_scale=1.5)
+    ax = sns.heatmap(grid_heatmap, annot=True, cbar=False, fmt=".3f", cmap="crest")
+    plt.title(desc)
+    st.pyplot(fig)
+
+
+def plot_point_on_grid(state_vector, grid_locations, desc):
     """
     Plots the current location of the agent on the grid world
     """
+    fig, ax = plt.subplots()
     state_index = np.where(state_vector)[0][0]
     y, x = grid_locations[state_index]
     grid_heatmap = np.zeros((3, 3))
     grid_heatmap[y, x] = 1.0
-    sns.heatmap(grid_heatmap, cbar=False, fmt=".0f")
+    ax = sns.heatmap(grid_heatmap, cbar=False, fmt=".0f")
+    plt.title(desc)
+    st.pyplot(fig)
 
 
 def plot_beliefs(belief_dist, title_str=""):
@@ -72,12 +96,12 @@ def plot_beliefs(belief_dist, title_str=""):
 
     if not np.isclose(belief_dist.sum(), 1.0):
         raise ValueError("Distribution not normalized! Please normalize")
-
+    fig, ax = plt.subplots()
     plt.grid(zorder=0)
     plt.bar(range(belief_dist.shape[0]), belief_dist, color="r", zorder=3)
     plt.xticks(range(belief_dist.shape[0]))
     plt.title(title_str)
-    plt.show()
+    st.pyplot(fig)
 
 
 # for i in range(5):
