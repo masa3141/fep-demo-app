@@ -6,6 +6,7 @@ This is a demo application to understand the free energy principle(FEP) and acti
 ## Description
 
 ## Demo
+https://share.streamlit.io/masa3141/fep-demo-app
 
 ## VS. 
 
