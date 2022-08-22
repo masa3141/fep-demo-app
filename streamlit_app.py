@@ -7,9 +7,9 @@ import simple_bandit
 def main():
     # Mapping application name to function
     apps = {
+        "simple bandit": simple_bandit.main,
         "Readme": readme.main,
         "simple maze": simple_maze.main,
-        "simple bandit": simple_bandit.main,
     }
     selected_app_name = st.sidebar.selectbox(label="Please select a task", options=list(apps.keys()))
 
