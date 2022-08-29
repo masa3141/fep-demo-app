@@ -1,6 +1,7 @@
 import streamlit as st
 import numpy as np
 import matplotlib.pyplot as plt
+import pandas as pd
 
 
 class FEP:
@@ -124,6 +125,17 @@ class FEP:
         self.r3s.append(self.r3)
 
         return arm_index, result
+
+    def get_pd_result(self, trial):
+        return pd.DataFrame.from_dict(
+            {
+                "user_id": ["user_a"] * self.n,
+                "trial": [trial] * self.n,
+                "time": range(self.n),
+                "selected_arm": self.selected_arms,
+                "outcome": self.results,
+            }
+        )
 
     def plot_G_each_arm(self):
         fig = plt.figure(figsize=(20.0, 4.0))
@@ -276,15 +288,30 @@ def main():
         key="eta",
     )
 
-    n = st.number_input("n : number of play", min_value=1, max_value=100, value=30, step=1, key="n")
+    n = st.number_input("n : number of play in one trial", min_value=1, max_value=100, value=30, step=1, key="n")
+    trials = st.number_input("trial : number of trial", min_value=1, max_value=30, value=1, step=1, key="trials")
 
     button = st.button("Start Simulation")
     if button:
-        fep = FEP(rs=rs, gamma=gamma, a0=a0, eta=eta, true_prob=np.array([p1, p2, p3]), n=n)
-        fep.run()
-        fep.plot_G_each_arm()
-        fep.plot_p_pi()
-        fep.plot_reward()
+        result = pd.DataFrame()
+        for trial in range(trials):
+            st.markdown(f"## Results in trial {trial}")
+
+            fep = FEP(rs=rs, gamma=gamma, a0=a0, eta=eta, true_prob=np.array([p1, p2, p3]), n=n)
+            fep.run()
+            result = result.append(fep.get_pd_result(trial))
+
+            fep.plot_G_each_arm()
+            fep.plot_p_pi()
+            fep.plot_reward()
+        st.dataframe(result)
+        st.download_button(
+            "Download result csv",
+            result.to_csv(index=None).encode("utf-8"),
+            "result.csv",
+            "text/csv",
+            key="download-csv",
+        )
 
 
 if __name__ == "__main__":
